@@ -1,77 +1,91 @@
 const Appointment = require("../models/Appointment");
 const nodemailer = require("nodemailer");
 
-// Email config (from .env)
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-// 🔹 User requests appointment
-exports.requestAppointment = async (req, res) => {
+// Request appointment
+exports.createAppointment = async (req, res) => {
   try {
-    const { userName, userEmail, doctorId, hospitalId } = req.body;
+    const appointment = await Appointment.create(req.body);
+    res.status(201).json(appointment);
 
-    const newAppointment = new Appointment({
-      userName,
-      userEmail,
-      doctor: doctorId,
-      hospital: hospitalId,
-    });
-
-    const saved = await newAppointment.save();
-    res.status(201).json(saved);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    // Optionally, notify doctor by email here
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// 🔹 Doctor accepts / rejects appointment
+// Doctor view pending appointments
+exports.getPendingAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find({
+      status: "Pending",
+      doctor: req.params.doctorId,
+    })
+      .populate("hospital")
+      .populate("doctor");
+    res.json(appointments);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Doctor respond (accept/reject)
 exports.respondAppointment = async (req, res) => {
   try {
     const { id } = req.params;
-    const { action, rejectionReason } = req.body; // action: "accept" or "reject"
+    const { status } = req.body; // Accepted or Rejected
 
-    const appointment = await Appointment.findById(id).populate("doctor");
-
-    if (!appointment)
-      return res.status(404).json({ message: "Appointment not found" });
-
-    if (action === "accept") {
-      // generate token
-      const token = Math.floor(1000 + Math.random() * 9000).toString(); // 4 digit
-      appointment.status = "Accepted";
-      appointment.token = token;
-
-      // send email to user
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: appointment.userEmail,
-        subject: "Appointment Confirmed",
-        text: `Hi ${appointment.userName}, your appointment with Dr. ${appointment.doctor.name} is confirmed. Your token is: ${token}`,
-      });
-    } else if (action === "reject") {
-      appointment.status = "Rejected";
-      appointment.rejectionReason = rejectionReason || "No reason provided";
-
-      // send email to user
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: appointment.userEmail,
-        subject: "Appointment Rejected",
-        text: `Hi ${appointment.userName}, your appointment with Dr. ${appointment.doctor.name} was rejected. Reason: ${appointment.rejectionReason}`,
-      });
-    } else {
-      return res.status(400).json({ message: "Invalid action" });
+    if (!["Accepted", "Rejected"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
     }
 
-    await appointment.save();
-    res.status(200).json(appointment);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
+    const appointment = await Appointment.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true },
+    )
+      .populate("doctor")
+      .populate("hospital");
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    // Send email to user
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: appointment.userEmail,
+      subject: `Appointment ${status}`,
+      text: `Your appointment with Dr.${appointment.doctor.name} at ${appointment.hospital.name} on ${appointment.date.toDateString()} (${appointment.timeSlot}) has been ${status}.`,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (emailErr) {
+      console.error("Failed to send email:", emailErr.message);
+    }
+
+    res.json(appointment);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// New: get all pending appointments (for admin or doctor dashboard overview)
+exports.getAllPendingAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find({ status: "Pending" })
+      .populate("doctor")
+      .populate("hospital");
+    res.json(appointments);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

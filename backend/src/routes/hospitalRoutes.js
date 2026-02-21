@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
+const Hospital = require("../models/Hospital");
 
 const {
   getAllHospitals,
@@ -36,14 +38,19 @@ router.put("/:id", updateHospital);
 // Delete hospital
 router.delete("/:id", async (req, res) => {
   try {
-    const deleted = await Hospital.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid hospital ID" });
+    }
 
+    const deleted = await Hospital.findByIdAndDelete(id);
     if (!deleted) {
       return res.status(404).json({ message: "Hospital not found" });
     }
 
     res.status(200).json({ message: "Hospital deleted successfully" });
   } catch (error) {
+    console.error(error); // log full error
     res.status(500).json({ message: error.message });
   }
 });

@@ -1,5 +1,11 @@
 import { NavLink } from "react-router-dom";
-import { Home, LayoutDashboard, HandHelping, ChevronRight } from "lucide-react";
+import {
+  Home,
+  LayoutDashboard,
+  HandHelping,
+  LogIn,
+  ChevronRight,
+} from "lucide-react";
 
 export default function Navbar() {
   const baseStyle =
@@ -43,6 +49,16 @@ export default function Navbar() {
           >
             <HandHelping size={20} />
           </NavLink>
+
+          {/* Login */}
+          <NavLink
+            to="/auth"
+            className={({ isActive }) =>
+              `flex flex-col items-center ${isActive ? "text-primary" : "text-neutral"}`
+            }
+          >
+            <LogIn size={20} />
+          </NavLink>
         </div>
       </div>
 
@@ -73,6 +89,16 @@ export default function Navbar() {
           }
         >
           <HandHelping size={20} />
+        </NavLink>
+
+        {/* Login */}
+        <NavLink
+          to="/auth"
+          className={({ isActive }) =>
+            `flex flex-col items-center ${isActive ? "text-primary" : "text-neutral"}`
+          }
+        >
+          <LogIn size={20} />
         </NavLink>
       </div>
     </>

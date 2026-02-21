@@ -17,6 +17,9 @@ mongoose
   .catch((err) => console.log("MongoDB Error:", err));
 
 app.use("/api/hospitals", require("./routes/hospitalRoutes"));
+// app.use("/api/doctors", require("./routes/doctorRoutes"));
+app.use("/api/doctors", require("./routes/doctorRoutes"));
+app.use("/api/appointments", require("./routes/appointmentRoutes"));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

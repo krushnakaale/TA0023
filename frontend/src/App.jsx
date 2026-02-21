@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import HomePage from "./pages/Home/HomePage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import AboutPage from "./pages/About/AboutPage";
+import AuthPage from "./pages/AuthPage";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/auth" element={<AuthPage />} />;
         </Routes>
       </div>
     </div>
