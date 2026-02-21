@@ -10,6 +10,7 @@ const hospitalSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    image: String,
     address: String,
     contact: String,
 

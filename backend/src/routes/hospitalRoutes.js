@@ -9,6 +9,15 @@ const {
   updateHospital,
 } = require("../controllers/hospitalController");
 
+router.get("/status/open", async (req, res) => {
+  try {
+    const hospitals = await Hospital.find({ opdStatus: "Open" });
+    res.status(200).json(hospitals);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Home page → All hospitals
 router.get("/", getAllHospitals);
 
@@ -24,10 +33,16 @@ router.post("/", createHospital);
 // Admin → Update beds / OPD
 router.put("/:id", updateHospital);
 
-router.get("/status/open", async (req, res) => {
+// Delete hospital
+router.delete("/:id", async (req, res) => {
   try {
-    const hospitals = await Hospital.find({ opdStatus: "Open" });
-    res.status(200).json(hospitals);
+    const deleted = await Hospital.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Hospital not found" });
+    }
+
+    res.status(200).json({ message: "Hospital deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

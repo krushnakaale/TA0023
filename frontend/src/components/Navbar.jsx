@@ -10,8 +10,8 @@ export default function Navbar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex h-screen items-center px-4">
-        <div className="bg-white shadow-lg rounded-2xl py-6 px-3 flex flex-col items-center space-y-6">
+      <div className="hidden md:flex h-screen items-center justify-center px-4">
+        <div className="bg-white shadow-lg rounded-2xl py-6 px-4 flex flex-col items-center space-y-6 fixed top-1/2 left-4 transform -translate-y-1/2">
           {/* Toggle (desktop only) */}
           <button className="bg-black text-white rounded-full p-2 mb-4">
             <ChevronRight size={18} />
@@ -47,13 +47,11 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Bottom Navbar */}
-      <div className="fixed bottom-0 left-0 w-full bg-white shadow-md flex justify-around py-3 md:hidden">
+      <div className="fixed bottom-0 left-0 w-full bg-white shadow-md flex justify-around py-3 md:hidden z-50">
         <NavLink
           to="/"
           className={({ isActive }) =>
-            `flex flex-col items-center ${
-              isActive ? "text-primary" : "text-neutral"
-            }`
+            `flex flex-col items-center ${isActive ? "text-primary" : "text-neutral"}`
           }
         >
           <Home size={20} />
@@ -62,9 +60,7 @@ export default function Navbar() {
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
-            `flex flex-col items-center ${
-              isActive ? "text-primary" : "text-neutral"
-            }`
+            `flex flex-col items-center ${isActive ? "text-primary" : "text-neutral"}`
           }
         >
           <LayoutDashboard size={20} />
@@ -73,9 +69,7 @@ export default function Navbar() {
         <NavLink
           to="/about"
           className={({ isActive }) =>
-            `flex flex-col items-center ${
-              isActive ? "text-primary" : "text-neutral"
-            }`
+            `flex flex-col items-center ${isActive ? "text-primary" : "text-neutral"}`
           }
         >
           <HandHelping size={20} />

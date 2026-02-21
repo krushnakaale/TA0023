@@ -12,7 +12,7 @@ export default function App() {
       <Navbar />
 
       {/* Main Content */}
-      <div className="flex-1 p-6 pb-20 md:pb-6">
+      <div className="flex-1 p-6 px-20 pb-20 md:pb-6">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
